@@ -4081,6 +4081,9 @@ func TestWriteServerConfig_Defaults(t *testing.T) {
 		"data_dir: \"" + dir + "\"",
 		"log_level: warning",
 		"auto_gc_behavior:",
+		"event_scheduler: \"OFF\"",
+		"system_variables:",
+		"dolt_stats_enabled: 0",
 	}
 	for _, want := range checks {
 		if !strings.Contains(content, want) {

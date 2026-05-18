@@ -1445,9 +1445,13 @@ data_dir: "%s"
 
 behavior:
   dolt_transaction_commit: false
+  event_scheduler: "OFF"
   auto_gc_behavior:
     enable: false
     archive_level: 0
+
+system_variables:
+  dolt_stats_enabled: 0
 `,
 		config.LogLevel,
 		config.Port,
