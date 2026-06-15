@@ -240,7 +240,7 @@ type childInfo struct {
 }
 
 // parseChildrenJSON parses the output of `bd show <id> --children --json`.
-// bd returns a map keyed by parent ID: {"hq-wisp-abc": [{...}, ...]}.
+// bd returns an envelope: {"hq-wisp-abc": [{...}, ...], "schema_version": 1}.
 // For forward compatibility, a bare array is also accepted.
 func parseChildrenJSON(raw string) ([]childInfo, error) {
 	data := []byte(raw)
@@ -250,10 +250,17 @@ func parseChildrenJSON(raw string) ([]childInfo, error) {
 		return arr, nil
 	}
 
-	var wrapped map[string][]childInfo
-	if err := json.Unmarshal(data, &wrapped); err == nil {
-		for _, children := range wrapped {
-			return children, nil
+	// Use RawMessage to handle mixed-type values (arrays alongside schema_version integer).
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err == nil {
+		for key, val := range envelope {
+			if key == "schema_version" {
+				continue
+			}
+			var children []childInfo
+			if err := json.Unmarshal(val, &children); err == nil {
+				return children, nil
+			}
 		}
 		return nil, nil
 	}
